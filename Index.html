@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mundo Gamer Perú - Premium Store</title>
+    <!-- Estilos personalizados -->
+    <link rel="stylesheet" href="Img.css">
+    <!-- FontAwesome para Iconografía Gamer Completa -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- CAJA DE NOTIFICACIONES TOAST (HU007, HU008) -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- NAVBAR PRINCIPAL -->
+    <header class="main-header">
+        <div class="header-container">
+            <div class="logo-zone" onclick="showSection('catalogo-sec')">
+                <i class="fa-solid fa-headset logo-icon"></i>
+                <h1 class="logo-text">MUNDO GAMER <span class="accent-neon">PERÚ</span></h1>
+            </div>
+
+            <!-- HU005: Buscador Inteligente -->
+            <div class="search-zone">
+                <div class="search-bar-wrapper">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="text" id="searchInput" placeholder="Buscar periféricos, hardware, marcas (ej. Logitech)...">
+                    <button class="clear-search-btn id="clearSearch" onclick="clearSearchInput()">&times;</button>
+                </div>
+                <div id="searchSuggestions" class="suggestions-dropdown hidden"></div>
+            </div>
+
+            <!-- Navegación y Perfil -->
+            <nav class="nav-menu">
+                <a href="#" class="nav-link active" id="nav-catalogo" onclick="showSection('catalogo-sec')">
+                    <i class="fa-solid fa-store"></i> <span>Tienda</span>
+                </a>
+                <a href="#" class="nav-link" id="nav-wishlist" onclick="showSection('wishlist-sec')">
+                    <i class="fa-solid fa-heart"></i> <span>Favoritos</span>
+                </a>
+                <a href="#" class="nav-link" id="nav-historial" onclick="showSection('historial-sec')">
+                    <i class="fa-solid fa-clock-history"></i> <span>Mis Compras</span>
+                </a>
+                
+                <div class="auth-status-area">
+                    <button class="btn-auth-trigger" id="authBtn" onclick="openLoginModal()">
+                        <i class="fa-solid fa-user-astronaut"></i> <span id="user-nav-text">Ingresar</span>
+                    </button>
+                </div>
+
+                <!-- HU008: Icono Carrito de Compras Interactiva -->
+                <div class="cart-widget" onclick="showSection('cart-sec')">
+                    <div class="cart-icon-wrapper">
+                        <i class="fa-solid fa-cart-shopping"></i>
+                        <span id="cart-count" class="badge-cart">0</span>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- HÉROE / BANNER DE BIENVENIDA -->
+    <section class="hero-banner" id="hero-banner-area">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <span class="hero-tag">EQUIPAMIENTO DE ÉLITE</span>
+            <h2>SUBE DE NIVEL TU SETUp</h2>
+            <p>Hardware certificado con garantía oficial y envíos a todo el Perú de forma rápida y segura.</p>
+        </div>
+    </section>
+
+    <!-- CUERPO PRINCIPAL -->
+    <main class="app-container">
+
+        <!-- HU001 y HU002: MODAL DE AUTENTICACIÓN -->
+        <div id="loginModal" class="modal-overlay">
+            <div class="modal-window">
+                <div class="modal-header">
+                    <h3><i class="fa-solid fa-shield-halved"></i> CENTRO DE ACCESO</h3>
+                    <button class="modal-close-btn" onclick="closeLoginModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div id="login-form-view">
+                        <p class="modal-subtitle">Inicia sesión para gestionar tus pedidos y guardar tu Wishlist.</p>
+                        <div id="login-error-msg" class="danger-alert hidden"></div>
+                        
+                        <div class="input-group">
+                            <label for="loginUser">Usuario / Email</label>
+                            <input type="text" id="loginUser" placeholder="Introduce tu usuario (ej: admin)">
+                        </div>
+                        <div class="input-group">
+                            <label for="loginPass">Contraseña</label>
+                            <input type="password" id="loginPass" placeholder="••••••••">
+                        </div>
+                        
+                        <button class="btn-cyber-primary" onclick="processLogin()">
+                            <span>INGRESAR A LA PLATAFORMA</span>
+                        </button>
+                        
+                        <div class="divider-text"><span>O CONTINÚA CON</span></div>
+                        
+                        <!-- HU002: Integración Google -->
+                        <button class="btn-google-auth" onclick="loginWithGoogle()">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google">
+                            <span>Continuar con Google</span>
+                        </button>
+                    </div>
+
+                    <div id="welcome-logged-view" class="hidden text-center">
+                        <div class="success-avatar">
+                            <i class="fa-solid fa-user-check"></i>
+                        </div>
+                        <h3 id="welcome-user-text" class="welcome-title">¡Sesión Iniciada!</h3>
+                        <p>Ya puedes acceder a tus beneficios de cliente autenticado.</p>
+                        <button class="btn-cyber-danger" onclick="logout()">
+                            <span>CERRAR SESIÓN</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- HU006: MODAL DETALLE EXTENDIDO DE PRODUCTO -->
+        <div id="detailModal" class="modal-overlay">
+            <div class="modal-window large-window">
+                <div class="modal-header">
+                    <h3><i class="fa-solid fa-circle-info"></i> ESPECIFICACIONES DEL HARDWARE</h3>
+                    <button class="modal-close-btn" onclick="closeDetailModal()">&times;</button>
+                </div>
+                <div class="modal-body" id="product-detail-body">
+                    <!-- Dinámico por JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- HU004: BARRA DE CATEGORÍAS -->
+        <section id="category-filter-section" class="category-filter-container">
+            <div class="category-scroll">
+                <button class="category-tab active" onclick="filterCategory('Todos', this)">
+                    <i class="fa-solid fa-border-all"></i> Todos Hardware (<span id="count-Todos">0</span>)
+                </button>
+                <button class="category-tab" onclick="filterCategory('Laptops', this)">
+                    <i class="fa-solid fa-laptop-code"></i> Laptops Gamer (<span id="count-Laptops">0</span>)
+                </button>
+                <button class="category-tab" onclick="filterCategory('Teclados', this)">
+                    <i class="fa-solid fa-keyboard"></i> Teclados & Periféricos (<span id="count-Teclados">0</span>)
+                </button>
+                <button class="category-tab" onclick="filterCategory('Componentes', this)">
+                    <i class="fa-solid fa-microchip"></i> Componentes / GPU (<span id="count-Componentes">0</span>)
+                </button>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 1: CATÁLOGO DE PRODUCTOS (HU003) -->
+        <section id="catalogo-sec" class="page-view-section">
+            <div class="view-header">
+                <h2>Catálogo de Artículos Disponible</h2>
+                <p>Precios actualizados en Soles Peruanos con tasa de impuestos incluida.</p>
+            </div>
+            <div id="product-grid" class="products-responsive-grid"></div>
+        </section>
+
+        <!-- SECCIÓN 2: WISHLIST (HU007) -->
+        <section id="wishlist-sec" class="page-view-section hidden">
+            <div class="view-header">
+                <h2><i class="fa-solid fa-heart neon-pink-txt"></i> Mi Lista de Deseos</h2>
+                <p>Monitorea el stock de tus componentes favoritos aquí.</p>
+            </div>
+            <div id="wishlist-grid" class="products-responsive-grid"></div>
+            <div id="wishlist-empty" class="empty-state-box hidden">
+                <i class="fa-solid fa-heart-crack"></i>
+                <p>No tienes productos agregados a tus favoritos todavía.</p>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 3: CARRITO COMPLETO Y LOGÍSTICA (HU008, HU009, HU011, HU012, HU013) -->
+        <section id="cart-sec" class="page-view-section hidden">
+            <div class="view-header">
+                <h2><i class="fa-solid fa-basket-shopping"></i> Módulo de Compra</h2>
+            </div>
+            <div class="cart-layout-grid">
+                
+                <!-- Lista de Ítems del Carrito (HU009) -->
+                <div class="cart-items-column">
+                    <div class="card-panel">
+                        <h3 class="panel-title">Artículos Seleccionados</h3>
+                        <div id="cart-items-list" class="cart-items-wrapper"></div>
+                    </div>
+                </div>
+
+                <!-- Resumen Logístico de Checkout (HU011, HU012, HU013, HU016) -->
+                <div class="cart-summary-column">
+                    <div class="card-panel summary-panel">
+                        <h3 class="panel-title">Resumen de Cuenta</h3>
+                        
+                        <div class="summary-line">
+                            <span>Subtotal</span>
+                            <span id="cart-subtotal" class="font-bold">S/ 0.00</span>
+                        </div>
+
+                        <hr class="panel-divider">
+
+                        <!-- Métodos de Distribución Logística -->
+                        <h4 class="sub-panel-title"><i class="fa-solid fa-truck-ramp-box"></i> Método de Despacho</h4>
+                        <div class="delivery-toggle-group">
+                            <label class="toggle-option">
+                                <input type="radio" name="deliveryMethod" value="delivery" checked onchange="handleDeliveryMethodChange()">
+                                <div class="toggle-card">
+                                    <i class="fa-solid fa-house-chimney"></i>
+                                    <span>Envío a Casa</span>
+                                </div>
+                            </label>
+                            <label class="toggle-option">
+                                <input type="radio" name="deliveryMethod" value="store" onchange="handleDeliveryMethodChange()">
+                                <div class="toggle-card">
+                                    <i class="fa-solid fa-building-flag"></i>
+                                    <span>Retirar Almacén</span>
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- HU011: Selector de Ubicación Territorial (Ubigeo Perú) -->
+                        <div id="ubigeo-block" class="ubigeo-form-group">
+                            <div class="input-group">
+                                <label>Departamento</label>
+                                <select id="depSelect" onchange="onDepartamentoChange()">
+                                    <option value="">Seleccione Región</option>
+                                    <option value="Lima">Lima</option>
+                                    <option value="Arequipa">Arequipa</option>
+                                    <option value="La Libertad">La Libertad</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label>Provincia / Distrito</label>
+                                <select id="provSelect" disabled>
+                                    <option value="">Seleccione Ubicación</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label>Código Postal (Perú)</label>
+                                <input type="text" id="zipCode" placeholder="Ej: 15001">
+                            </div>
+                            <div class="input-group">
+                                <label>Dirección Física de Entrega</label>
+                                <input type="text" id="addressInput" placeholder="Av / Calle / Nro / Departamento">
+                            </div>
+                        </div>
+
+                        <!-- HU013: Retiro en tienda Almacén Físico -->
+                        <div id="store-block" class="store-info-panel hidden">
+                            <div class="store-badge-title">RETIRO GRATUITO</div>
+                            <p><strong>Sede Central Wilson:</strong> Av. Garcilaso de la Vega 1250, Tienda 204 (Cyberplaza), Lima Centro.</p>
+                            <p class="text-muted"><i class="fa-solid fa-clock"></i> Horario: L-S 10:00 AM - 8:30 PM</p>
+                        </div>
+
+                        <div class="summary-line">
+                            <span>Costos de Distribución</span>
+                            <span id="delivery-cost" class="neon-cyan-txt">S/ 0.00</span>
+                        </div>
+
+                        <!-- HU012: Mensaje de Tiempo Estimado o Cronómetro -->
+                        <div id="delivery-timer-box" class="timer-countdown-box hidden"></div>
+
+                        <hr class="panel-divider">
+
+                        <!-- HU016: Módulo de Cupones Promocionales -->
+                        <div class="coupon-wrapper">
+                            <label for="couponInput" class="small-label">¿Tienes un cupón exclusivo?</label>
+                            <div class="coupon-field">
+                                <input type="text" id="couponInput" placeholder="Ej: GAMER2026">
+                                <button class="btn-apply-coupon" onclick="applyPromoCoupon()">Validar</button>
+                            </div>
+                            <p id="coupon-msg" class="coupon-validation-label"></p>
+                        </div>
+
+                        <hr class="panel-divider">
+
+                        <div class="summary-line total-line">
+                            <span>TOTAL GENERAL</span>
+                            <span id="cart-total">S/ 0.00</span>
+                        </div>
+
+                        <button class="btn-cyber-checkout" onclick="proceedToPaymentGateway()">
+                            <span>PASAR A LA PASARELA DE PAGO <i class="fa-solid fa-shield-heart"></i></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 4: PASARELA DE PAGOS SEGUROS (HU014, HU015, HU017) -->
+        <section id="payment-sec" class="page-view-section hidden">
+            <div class="view-header">
+                <h2><i class="fa-solid fa-cash-register"></i> Liquidación de Transacción</h2>
+                <p>Entorno cifrado SSL de alta seguridad para procesamiento bancario nacional.</p>
+            </div>
+
+            <div class="payment-grid-layout">
+                <div class="payment-methods-card">
+                    <div class="payment-tabs-bar">
+                        <button class="pay-tab-btn active" id="tab-tarjeta" onclick="selectPaymentMethod('tarjeta')">
+                            <i class="fa-solid fa-credit-card"></i> Tarjetas de Crédito/Débito (Niubiz)
+                        </button>
+                        <button class="pay-tab-btn" id="tab-yape" onclick="selectPaymentMethod('yape')">
+                            <i class="fa-solid fa-mobile-screen-button"></i> Yape / Plin Interbancario
+                        </button>
+                    </div>
+
+                    <!-- Formulario de Tarjeta Bancaria (HU014) -->
+                    <div id="payment-card-form" class="payment-form-content">
+                        <h3><i class="fa-solid fa-building-columns"></i> Pago con Pasarela Integrada</h3>
+                        <div id="card-errors-container" class="danger-alert hidden"></div>
+                        
+                        <div class="input-group">
+                            <label>Número Impreso de Tarjeta</label>
+                            <input type="text" id="cardNum" placeholder="4557 •••• •••• ••••" maxlength="16">
+                        </div>
+                        <div class="row-inputs">
+                            <div class="input-group">
+                                <label>Vencimiento</label>
+                                <input type="text" id="cardExp" placeholder="MM/AA" maxlength="5">
+                            </div>
+                            <div class="input-group">
+                                <label>Código de Seguridad CVV</label>
+                                <input type="password" id="cardCvv" placeholder="123" maxlength="3">
+                            </div>
+                        </div>
+
+                        <!-- HU017: Facturación Electrónica Integrada -->
+                        <div class="billing-invoice-box">
+                            <h4><i class="fa-solid fa-receipt"></i> Sistema de Facturación SUNAT</h4>
+                            <div class="input-group">
+                                <label>Tipo de Documento</label>
+                                <select id="invoiceType" onchange="handleInvoiceTypeChange()">
+                                    <option value="boleta">Boleta de Venta (Uso Personal - DNI)</option>
+                                    <option value="factura">Factura Comercial (Empresas - RUC)</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label id="docLabel">Número de Documento de Identidad</label>
+                                <input type="text" id="invoiceDoc" placeholder="Número de DNI de 8 dígitos" maxlength="11">
+                            </div>
+                        </div>
+
+                        <button class="btn-cyber-primary" onclick="submitCardPayment()">
+                            <span>PROCESAR PAGO CON NIUBIZ</span>
+                        </button>
+                    </div>
+
+                    <!-- Sistema Yape/Plin (HU015) -->
+                    <div id="payment-qr-form" class="payment-form-content hidden">
+                        <h3><i class="fa-solid fa-qrcode"></i> Recaudo Inmediato QR Dinámico</h3>
+                        <div class="qr-container-box">
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=MundoGamerPeru2026PasarelaTransaccionFicticia" alt="QR de Pago" class="qr-code-img">
+                            <p class="qr-instructions">Abre Yape o Plin, escanea el código e introduce el monto exacto calculado en tu orden.</p>
+                        </div>
+
+                        <div class="input-group">
+                            <label>Código de Operación / Constancia de Transferencia</label>
+                            <input type="text" id="yapeOperation" placeholder="Código de 8 dígitos recibido en tu app" maxlength="8">
+                        </div>
+
+                        <!-- Facturación en QR -->
+                        <div class="billing-invoice-box">
+                            <h4><i class="fa-solid fa-receipt"></i> Sistema de Facturación SUNAT</h4>
+                            <div class="input-group">
+                                <label>Tipo de Comprobante</label>
+                                <select id="invoiceTypeQR" onchange="handleInvoiceTypeChangeQR()">
+                                    <option value="boleta">Boleta de Venta (DNI)</option>
+                                    <option value="factura">Factura Comercial (RUC)</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label id="docLabelQR">Número de DNI</label>
+                                <input type="text" id="invoiceDocQR" placeholder="DNI de 8 dígitos" maxlength="11">
+                            </div>
+                        </div>
+
+                        <button class="btn-cyber-primary" onclick="submitQRPayment()">
+                            <span>VALIDAR OPERACIÓN YAPE/PLIN</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 5: SEGUIMIENTO INTEGRADO Y TRACKING (HU018) -->
+        <section id="tracking-sec" class="page-view-section hidden">
+            <div class="view-header text-center">
+                <h2><i class="fa-solid fa-truck-fast"></i> Sistema de Monitoreo de Despachos</h2>
+                <p>Sigue la geolocalización y procesamiento logístico de tus componentes en tiempo real.</p>
+            </div>
+            
+            <div class="tracking-dashboard-card">
+                <div class="tracking-info-header">
+                    <div>Código de Rastreo: <span id="track-code-txt" class="neon-cyan-txt">MG-000000</span></div>
+                    <div>Transportista: <strong class="neon-pink-txt">Olva Courier / Shalom Express</strong></div>
+                </div>
+
+                <!-- Línea de tiempos -->
+                <div class="tracking-timeline-flow">
+                    <div class="timeline-step active" id="step-proc">
+                        <div class="icon-circle"><i class="fa-solid fa-warehouse"></i></div>
+                        <span class="step-label">Procesando</span>
+                    </div>
+                    <div class="timeline-step" id="step-cam">
+                        <div class="icon-circle"><i class="fa-solid fa-truck-moving"></i></div>
+                        <span class="step-label">En Camino</span>
+                    </div>
+                    <div class="timeline-step" id="step-ent">
+                        <div class="icon-circle"><i class="fa-solid fa-box-open"></i></div>
+                        <span class="step-label">Entregado</span>
+                    </div>
+                </div>
+
+                <div class="tracking-footer-actions text-center">
+                    <a href="https://www.olvacourier.com/" target="_blank" class="btn-external-link">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i> Conectarse al API Satelital de Olva
+                    </a>
+                    <p class="thanks-signature">¡Muchas gracias por tu compra! :3</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 6: HISTORIAL DE COMPRAS PASADAS (HU019) -->
+        <section id="historial-sec" class="page-view-section hidden">
+            <div class="view-header">
+                <h2><i class="fa-solid fa-folder-open"></i> Historial de Adquisiciones</h2>
+                <p>Consulta tus órdenes pasadas, estados tributarios ante SUNAT y solicita soporte técnico.</p>
+            </div>
+            
+            <div class="history-table-container">
+                <table class="gamer-table">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>ID Transacción</th>
+                            <th>Artículos Adquiridos</th>
+                            <th>Monto Total</th>
+                            <th>Estado de Envío</th>
+                            <th>Acciones Rápidas</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historial-tbody">
+                        <!-- Quemado por historia de usuario y dinámico -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER GENERAL -->
+    <footer class="main-footer">
+        <p>&copy; 2026 Mundo Gamer Perú S.A.C. Todos los derechos reservados.</p>
+    </footer>
+
+    <!-- HU020: BOTÓN FLOTANTE PERMANENTE DE SOPORTE VÍA WHATSAPP -->
+    <a href="https://wa.me/51999999999?text=Hola%20Mundo%20Gamer,%20deseo%20consultar%20sobre%20la%20compatibilidad%20de%20componentes%20de%20mi%20PC." 
+       class="whatsapp-floating-widget" 
+       target="_blank" 
+       rel="noopener noreferrer" 
+       title="Soporte de Compatibilidad de Hardware en Vivo">
+        <div class="whatsapp-pulse"></div>
+        <i class="fa-brands fa-whatsapp"></i>
+    </a>
+
+    <!-- Lógica de control en JS -->
+    <script src="DF.js"></script>
+</body>
+</html>
